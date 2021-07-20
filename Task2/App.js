@@ -1,18 +1,25 @@
-import React, { useState } from "react";
-import "./styles.css";
+import React from "react";
+import "./App.css";
+import Cards from "./Cards";
 
-const App = () => {
-  const [users, setUsers] = useState([]);
-
-  const loader = async () => {
-    setTimeout(function () {
-      document.getElementById("myDiv").style.display = "none";
-    }, 5000);
-  };
-  const loadUsers = async () => {
-    const response = await fetch("https://api.github.com/users");
-    const jsonresponse = await response.json();
-    setUsers(jsonresponse);
+function App() {
+  const [isDateLoaded, setIsDateLoaded] = React.useState(false);
+  const [userData, setUserData] = React.useState([]);
+  const [isButtonClick, setisButtonClick] = React.useState(false);
+  const handleClick = () => {
+    setisButtonClick(true);
+    // Fetch data from https://reqres.in/api/users?page=1
+    fetch("https://reqres.in/api/users?page=1")
+      .then((response) => response.json())
+      .then((res) => {
+        setUserData(res.data);
+        setInterval(() => {
+          setIsDateLoaded(true);
+        }, 2500);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -23,29 +30,35 @@ const App = () => {
             <span className="brandname">LGM</span>
             <span className="but">
               <ul class="navbar-nav ms-auto  me-5">
-                <button className="Btn" onClick={(loader, loadUsers)}>
+                <button className="Btn" onClick={handleClick}>
                   Get Users
                 </button>
               </ul>
             </span>
           </div>
         </nav>
+
+        <div className="container">
+          <div className="row justify-content-center ">
+            {isButtonClick ? (
+              isDateLoaded ? (
+                <Cards userData={userData} />
+              ) : (
+                <div className="col-4 mt-5">
+                  <span className="loader"></span>
+                </div>
+              )
+            ) : (
+              <div className="col-6  col-sm-8 text">
+                <b>Click on "Get Users" button to get the LGM Users</b>
+              </div>
+            )}
+          </div>
+        </div>
       </section>
-
-      <div className="myDiv">
-        <img id="myImage" src="src/giffy.gif"></img>
-      </div>
-
-      <ul>
-        <h2>Users:</h2>
-        {users.map(({ id, login, avatar_url }) => (
-          <li key={id}>
-            Name: {login}
-            Avatar: {avatar_url}
-          </li>
-        ))}
-      </ul>
     </>
   );
-};
+}
+
 export default App;
+
